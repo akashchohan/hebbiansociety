@@ -202,7 +202,7 @@
       <form id="acceptForm" autocomplete="off">
         <div>
           <label for="key">YOUR KEY</label>
-          <input id="key" name="key" maxlength="7" placeholder="XXXX-XX" required>
+          <input id="key" name="key" maxlength="8" placeholder="XXXX-XX" required>
         </div>
         <div>
           <label for="word">THE WORD YOU FOUND</label>
@@ -225,7 +225,7 @@
    The founder's number is not in this page. Each member's entry below is the
    number encrypted (AES-GCM) with a key derived (PBKDF2) from "KEY:WORD".
    Only a matching key and word can unlock it, so the answers never appear here. */
-const VAULT = {"iterations": 150000, "entries": [{"s": "wQd7MDI5wh+BeIzEYMFygw==", "i": "nEwLY0PTRYOEkFzH", "c": "L959VQNw1ovwJZtPznNjTjZ6erCwFLb4DfvO9Q=="}, {"s": "e6AjMRFKDGtsYXspshq7lA==", "i": "rFgk8yhZqpmeBsPJ", "c": "m1+qRxB4plTLT3+xo9SehMXN7ZJYe7cf8E4ZMw=="}, {"s": "/igy5wDe69/M3bpqiEPdvA==", "i": "79UbDFq0dYyd8r+g", "c": "c3wBVnjsuJu+8USGosBwtIyXiSqoaYYHZxxAYg=="}, {"s": "ipO6Tx4O2EgtTGacs68NrA==", "i": "mBHHPoWIYVkv5NB8", "c": "aNgaC/EioTjlMzVNdjJpkfz7j5pNpOSZyk0FjQ=="}, {"s": "C2UnuSSaXhpLIvpRcPqs0Q==", "i": "Dd6G2hWbRz5xRKzF", "c": "tR/rVAn6LL5QsG10/IM/AP4IljxLtsk3K+ABhg=="}, {"s": "y+2XZuRXINMiQ6GXgSTTig==", "i": "BBBc3Se6Bvd7YB8d", "c": "1xVKtU7+Xnlkb8mtWBdnueSXcUxoNQs/yNK64w=="}, {"s": "hxpCgTD7Yzz5IIS2jCEThg==", "i": "dFhVLdHkKBnUAYW2", "c": "QiWk2gjtjW0tpjA0rj0iLHiBNNZvczDwdqq67g=="}]};
+const VAULT = {"iterations": 150000, "entries": [{"s": "LMkxGD3ywKSobM3jNg6aFg==", "i": "ORFmTUtBalhNWckp", "c": "sB0fkQ8UNv4kDgjIrXAfEDziSI0T0L6/pjJr0Q=="}, {"s": "bJwIXViCRynpRGUt+swWDg==", "i": "tIRGiAbi7NU0XQWm", "c": "XEthwj3iFI7wx5T+/iScZXZMSPcVxLm2GSUcPQ=="}, {"s": "3n6U2tlaYgU5l1x79etXQQ==", "i": "r+XptxVGkMeKIB5K", "c": "Lz9a/pP+DZp5BBqX1oma++cULE1isftahYzmdw=="}, {"s": "aIJ6Qtwox/3U9/AD2czW2g==", "i": "TQEAUPDoTY8uUduU", "c": "xRogWIhuho0gGcltjekpRd5M9GX0wd7u6ekv1A=="}, {"s": "vLU8LAG/qOF4g5ruRvhurg==", "i": "pRCE2g6pyhlwGg83", "c": "m3D4mwxs0pSHz7gn05lsRLOlsBfLytJmDg6DCA=="}, {"s": "F2CChVf/QS67FSv9ctBZCQ==", "i": "SuAOupI0pIgU+1v5", "c": "hdrUQ2H/IElnnwCk+mXQc1pOdsQZQ231NLydtA=="}, {"s": "eIFRixvvPTV4XpB3yWozYw==", "i": "MpH0CY7j6IC0Twyj", "c": "l6N3CpKuXAZbkOpuqQwQqZlrcbgzNdclXaGPQw=="}, {"s": "JRZ6wTZ7gwDE/rpIlrmvVw==", "i": "bv7pbr4VlnBDC5JS", "c": "MC3Zi73xnraonuly/D12zJ6OWRGOYSNL6w1UrA=="}]};
 
 const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
 
@@ -248,7 +248,7 @@ document.getElementById("acceptForm").addEventListener("submit", async (e) => {
   const key = document.getElementById("key").value.trim().toUpperCase();
   const word = document.getElementById("word").value.trim().toUpperCase();
   const status = document.getElementById("status");
-  if (!/^[A-Z0-9]{4}-[A-Z0-9]{2}$/.test(key)) {
+  if (!/^[A-Z0-9]{4}-[A-Z0-9]{2,3}$/.test(key)) {
     status.textContent = "That is not the shape of a key.";
     return;
   }
