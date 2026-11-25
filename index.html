@@ -222,11 +222,28 @@
 
 <script>
 /* ---------- Acceptance ----------
-   A static site cannot keep answers secret, so nothing is checked here.
-   The acceptance goes to the founder, who checks it against his list. */
-const FOUNDER_WHATSAPP = "447352677920";
+   The founder's number is not in this page. Each member's entry below is the
+   number encrypted (AES-GCM) with a key derived (PBKDF2) from "KEY:WORD".
+   Only a matching key and word can unlock it, so the answers never appear here. */
+const VAULT = {"iterations": 150000, "entries": [{"s": "wQd7MDI5wh+BeIzEYMFygw==", "i": "nEwLY0PTRYOEkFzH", "c": "L959VQNw1ovwJZtPznNjTjZ6erCwFLb4DfvO9Q=="}, {"s": "e6AjMRFKDGtsYXspshq7lA==", "i": "rFgk8yhZqpmeBsPJ", "c": "m1+qRxB4plTLT3+xo9SehMXN7ZJYe7cf8E4ZMw=="}, {"s": "/igy5wDe69/M3bpqiEPdvA==", "i": "79UbDFq0dYyd8r+g", "c": "c3wBVnjsuJu+8USGosBwtIyXiSqoaYYHZxxAYg=="}, {"s": "ipO6Tx4O2EgtTGacs68NrA==", "i": "mBHHPoWIYVkv5NB8", "c": "aNgaC/EioTjlMzVNdjJpkfz7j5pNpOSZyk0FjQ=="}, {"s": "C2UnuSSaXhpLIvpRcPqs0Q==", "i": "Dd6G2hWbRz5xRKzF", "c": "tR/rVAn6LL5QsG10/IM/AP4IljxLtsk3K+ABhg=="}, {"s": "y+2XZuRXINMiQ6GXgSTTig==", "i": "BBBc3Se6Bvd7YB8d", "c": "1xVKtU7+Xnlkb8mtWBdnueSXcUxoNQs/yNK64w=="}, {"s": "hxpCgTD7Yzz5IIS2jCEThg==", "i": "dFhVLdHkKBnUAYW2", "c": "QiWk2gjtjW0tpjA0rj0iLHiBNNZvczDwdqq67g=="}]};
 
-document.getElementById("acceptForm").addEventListener("submit", (e) => {
+const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+
+async function unlock(key, word) {
+  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(`${key}:${word}`), "PBKDF2", false, ["deriveKey"]);
+  for (const e of VAULT.entries) {
+    const aesKey = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: b64(e.s), iterations: VAULT.iterations, hash: "SHA-256" },
+      material, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+    try {
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(e.i) }, aesKey, b64(e.c));
+      return new TextDecoder().decode(plain);
+    } catch { /* not this entry */ }
+  }
+  return null;
+}
+
+document.getElementById("acceptForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const key = document.getElementById("key").value.trim().toUpperCase();
   const word = document.getElementById("word").value.trim().toUpperCase();
@@ -235,9 +252,16 @@ document.getElementById("acceptForm").addEventListener("submit", (e) => {
     status.textContent = "That is not the shape of a key.";
     return;
   }
+  status.textContent = "Verifying…";
+  const number = await unlock(key, word);
+  if (!number) {
+    status.textContent = "The key and the word do not match.";
+    return;
+  }
   const text = `The Hebbian Society\nI accept my invitation.\nKey: ${key}\nWord: ${word}`;
-  status.textContent = "Opening WhatsApp. Send the message to complete your acceptance.";
-  window.open(`https://wa.me/${FOUNDER_WHATSAPP}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  const url = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+  status.innerHTML = `Accepted. <a href="${url}" target="_blank" rel="noopener" style="color:inherit">Send your acceptance to the founder →</a>`;
+  window.open(url, "_blank", "noopener");
 });
 
 /* ---------- Sections rise into view ---------- */
